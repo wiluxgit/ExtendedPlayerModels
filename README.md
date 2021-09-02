@@ -4,10 +4,10 @@ A Minecraft 1.17 shader which makes it possible to customize player models.
 ![image](https://user-images.githubusercontent.com/70565775/131819304-c7f89e34-575a-4bcb-b606-d13996bc9aed.png)
 ### Basic Editing
 This section contains all useful examples for player models
--PX(0,0) = identifier pixel. Must be 0xFF0000FF (pure red, full opacity)
--PX(1,0)
-  -R = api version, currently = 0x0
--PX(2,0) = support hash
+- PX(0,0) = identifier pixel. Must be 0xFF0000FF (pure red, full opacity)
+- PX(1,0)
+  - R = api version, currently = 0x0
+- PX(2,0) = support hash
 
 ### Advanced Editing
 Each face has an ID, see list in ...md 
