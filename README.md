@@ -13,7 +13,7 @@ https://github.com/OscarDahlqvist/ExtendedPlayerModels/archive/refs/heads/master
 
 Note: Lighting of the transformed faces is broken, this *should* be fixed soon.
 ## 2. Submitting
-I'd love to see more community feedback & suggestions to this repo. You can either suggest features as "issue" or if you're a king you can also submit code suggestions.
+I'd love to see more community feedback & suggestions to this repo. You can either suggest a by creating an issue or if you're a true jedi you can also submit code suggestions.
 
 My discord for Dms: Wilux#3918
 
