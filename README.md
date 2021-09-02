@@ -25,7 +25,7 @@ The face data is position is located at:
 
 Treat the RGBA value at this position 1 integer
 
-DATA: `TTxxxxxx yyyyyymM ccccD___ ________`
+DATA: `TTxxxxxx yyyyyymM ccccD... ........`
 - `T:2` = type 
   - `00`: Outer Layer
   - `01`: Outer Layer reversed
@@ -36,7 +36,7 @@ DATA: `TTxxxxxx yyyyyymM ccccD___ ________`
 - `m:1` = mirror texture X
 - `M:1` = mirror texture Y
 - `c:4` = Bitmask of which corners to fold
-- `D:0` = Disables the texture (useful if you need space for something else)
+- `D:1` = Disables the texture (useful if you need space for something else)
 
 
 ### TODO
