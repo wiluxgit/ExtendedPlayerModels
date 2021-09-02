@@ -54,7 +54,6 @@ RGB: `#RR GG BB` = `ETTTcccc LLxxxxxx XYyyyyyy`
   - `010`: Outer reversed
   - `011`: Inner reversed
   - `100`: Direct **(NOT IMPLEMENTED)**
-  - `111`: Advanced  **(NOT IMPLEMENTED)**
 - `c:4` = Bitmask of which corners to fold. *(must be 2 bits (or 0))*
 - `L:2` = Scaling Direction. *(the direction in the UV map from the fixed edge to the center of the face)*
 	- `00`: X+ 
