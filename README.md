@@ -18,6 +18,7 @@ The face data is position is located at:
 `X = (ID-32)%8`, `Y = floor((ID-32)/8)`
 
 Treat the RGBA value at this position 1 integer
+
 DATA: `TTxxxxxx yyyyyymM bbbb____ ________`
 - T:2 = type 
   - 00 => Outer Layer
