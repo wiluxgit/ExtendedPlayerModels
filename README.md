@@ -10,5 +10,4 @@ Calculate lighting on models.
 ### How it works
 Todo
 
-### How to make your own model:
-Todo
+
