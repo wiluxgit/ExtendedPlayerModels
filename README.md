@@ -1,6 +1,6 @@
 
 # ExtendedPlayerModels
-A Minecraft 1.17 Resource Pack (shader) which makes it possible to customize player models.
+A Minecraft 1.17 Vanilla Resource Pack which makes it possible to customize player models.
 Works with multiplayer
 
 ## 0. (BETA) MUST READ 
