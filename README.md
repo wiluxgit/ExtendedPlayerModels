@@ -30,8 +30,8 @@ DATA: `EDxxxxxx XYyyyyyy TT..cccc`
 - `E:1` = Enable face modifiers. (Must be 1 if you want anything to happen)
 - `D:1` = Disables the texture. (useful if you need space for something else)
 - `x:6` = UV x offset. (offset from original UV location in pixels)
-- `X:1` = Do mirror texture X.
-- `Y:1` = Do mirror texture Y.
+- `X:1` = Do mirror texture X. (NOT IMPLEMENTED)
+- `Y:1` = Do mirror texture Y. (NOT IMPLEMENTED)
 - `y:6` = UV y offest.
 - `T:2` = Transform type.
   - `00`: Outer layer
