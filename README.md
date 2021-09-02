@@ -30,7 +30,6 @@ DATA: `TTxxxxxx yyyyyymM ccccD... ........`
   - `00`: Outer Layer
   - `01`: Outer Layer reversed
   - `10`: Inner Layer reversed
-  - `11`: Parallell
 - `x:6` = UV x offset (offset from original UV location in pixels)
 - `y:6` = UV y offest 
 - `m:1` = mirror texture X
