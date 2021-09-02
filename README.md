@@ -37,8 +37,7 @@ DATA: `EDxxxxxx XYyyyyyy TT..cccc`
   - `00`: Outer layer
   - `01`: Outer layer reversed
   - `10`: Inner layer reversed
-  - `11`: None
-- `c:4` = Bitmask of which corners to fold.
+- `c:4` = Bitmask of which corners to fold. (must be 2 bits set)
 
 
 ### TODO
