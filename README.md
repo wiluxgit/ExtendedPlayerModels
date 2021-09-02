@@ -46,14 +46,14 @@ So the bottom face of the head would have ID=`39` and be located at `7,3`
 
 I'm assuming you are familiar with color hex codes. The hex code is treated as a bitfield to set specific properties of the face transformation.
 
-RGB: `#RR GG BB` = `ETTTcccc LLxxxxxx XYyyyyyy`
+RGB: `#RRGGBB` = `ETTTcccc LLxxxxxx XYyyyyyy`
 - `E:1` = Enable face modifiers. (Must be 1 if you want anything to happen)
 - `T:3` = Transform type. (see image in section 3.0)
   - `000`: None
   - `001`: Outer
   - `010`: Outer reversed
   - `011`: Inner reversed
-  - `100`: Direct **(NOT IMPLEMENTED)**
+  - `100`: Manual **(NOT IMPLEMENTED)** (Indirect, see section 3.2.1)
 - `c:4` = Bitmask of which corners to fold. *(must be 2 bits (or 0))*
 - `L:2` = Scaling Direction. *(the direction in the UV map from the fixed edge to the center of the face)*
 	- `00`: X+ 
@@ -64,6 +64,20 @@ RGB: `#RR GG BB` = `ETTTcccc LLxxxxxx XYyyyyyy`
 - `X:1` = flip X **(NOT IMPLEMENTED)**
 - `Y:1` = flip Y **(NOT IMPLEMENTED)**
 - `y:6` = UV y offset.
+
+### 3.2.1 Indirect Transforms
+Indirect transforms require additional data and will use the 6 least significant bits of alpha value of the pixel and as a reference to a EXT data pixel. What this pixel's value is used for depends on the transform.
+alpha = `--aaaAAA` 
+ - `a:3`: x position in EXT section
+ - `A:3`: y position in EXT section
+ 
+The secondary data pixel is denoted `EXD`.  Several faces can share the same EXT data pixel,
+
+ - **Manual** `(T=100)`
+   Allows you to set pixel displacement for the transform by hand.
+   - offsets corners **not** selected by the corner bitmask `c` by `EXD.r/32-16` pixels
+   - offsets corners selected by the corner bitmask `c` by `EXD.g/32-16` pixels
+
 
 
 ### 3.3 Examples
