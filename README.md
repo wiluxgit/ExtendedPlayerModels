@@ -27,10 +27,10 @@ Treat the RGBA value at this position 1 integer
 
 DATA: `TTxxxxxx yyyyyymM bbbbd___ ________`
 - `T:2` = type 
-  - `00` => Outer Layer
-  - `01` => Outer Layer reversed
-  - `10` => Inner Layer reversed
-  - `11` => Parallell
+  - `00`: Outer Layer
+  - `01`: Outer Layer reversed
+  - `10`: Inner Layer reversed
+  - `11`: Parallell
 - `x:6` = UV x offset (offset from original UV location in pixels)
 - `y:6` = UV y offest 
 - `m:1` = mirror texture X
