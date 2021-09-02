@@ -1,7 +1,7 @@
 # ExtendedPlayerModels
 A Minecraft 1.17 shader which makes it possible to customize player models.
 
-![image](https://user-images.githubusercontent.com/70565775/131818946-c0fb4b90-db8b-40f8-9075-9a6928927a24.png)
+![image](https://user-images.githubusercontent.com/70565775/131819304-c7f89e34-575a-4bcb-b606-d13996bc9aed.png)
 
 
 ### TODO
