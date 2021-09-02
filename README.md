@@ -18,7 +18,7 @@ I'd love to see more community feedback & suggestions to this repo. You can eith
 My discord for Dms: Wilux#3918
 
 ## 3. Editing
-### 3.0 What of the model can be edited?
+### 3.0 What even can be edited?
 First of all, polygons can NOT be added, only moved.
 Additionally, due to quirks of the minecraft shader wrapper vertexes can only be moved along the facing (normal) of the face or they will end up distorted*.
 
