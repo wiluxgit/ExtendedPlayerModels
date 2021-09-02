@@ -2,7 +2,7 @@
 A Minecraft 1.17 shader which makes it possible to customize player models.
 Works for everyone with the pack
 
-![image](https://user-images.githubusercontent.com/70565775/131819304-c7f89e34-575a-4bcb-b606-d13996bc9aed.png)
+![image](https://user-images.githubusercontent.com/70565775/131851851-0a27216d-7eca-48c3-aa64-cd16b85919a8.png)
 ### Basic Editing
 TODO: tool to generate.
 
