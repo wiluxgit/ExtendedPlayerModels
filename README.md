@@ -7,7 +7,7 @@ This section contains all useful examples for player models
 - PX(0,0) = identifier pixel. Must be 0xFF0000FF (pure red, full opacity)
 - PX(1,0)
   - R = api version, currently = 0x0
-- PX(2,0) = support hash
+- PX(2,0) = public key
 
 ### Advanced Editing
 Each face has an ID, see list in ...md 
