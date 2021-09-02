@@ -25,21 +25,18 @@ The face data is position is located at:
 
 Treat the RGBA value at this position 1 integer
 
-DATA: `TTxxxxxx yyyyyymM bbbb____ ________`
-- T:2 = type 
-  - 00 => Outer Layer
-  - 01 => Outer Layer reversed
-  - 10 => Inner Layer reversed
-  - 11 => Parallell
-- x:6 = UV x offset (offset from original UV location in pixels)
-- y:6 = UV y offest 
-- m:1 = mirror texture X
-- M:1 = mirror texture Y
-- B:4 = Bitmask of which corners to fold
-  - 00 => C0 & C1
-  - 01 => C1 & C2
-  - 10 => C2 & C3
-  - 11 => C3 & C0
+DATA: `TTxxxxxx yyyyyymM bbbbd___ ________`
+- `T:2` = type 
+  - `00` => Outer Layer
+  - `01` => Outer Layer reversed
+  - `10` => Inner Layer reversed
+  - `11` => Parallell
+- `x:6` = UV x offset (offset from original UV location in pixels)
+- `y:6` = UV y offest 
+- `m:1` = mirror texture X
+- `M:1` = mirror texture Y
+- `B:4` = Bitmask of which corners to fold
+- `d:0` = Disables the texture (useful if you need space for something else)
 
 
 ### TODO
