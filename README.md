@@ -18,22 +18,23 @@ This section contains all useful examples for player models
 - PX(2,0) = extra perm
 
 ### Advanced Editing
-Each face has an ID, see list in ...md 
+ExtendedPlayerModels allows customization of each of the faces by setting specific color values in each face's corresponding pixel.
+- Formula for finding which pixel to edit:
+  `X = (ID-8)%8`, `Y = floor((ID-8)/8)`
 
-The face data is position is located at:
-`X = (ID-8)%8`, `Y = floor((ID-8)/8)`
+![image](https://user-images.githubusercontent.com/70565775/131866612-79134dc2-6f23-42ef-87c4-96c31977d61d.png)<br/>*Image of face IDs.*
 
-Treat the RGBA value at this position 1 integer
+Im assuming you are familiar with HEX codes. the hex code is treated as a bitfield to set specific properties of the face transfomation.
 
-DATA: `TTxxxxxx yyyyyymM ccccD... ........`
-- `T:2` = type 
-  - `00`: Outer Layer
-  - `01`: Outer Layer reversed
-  - `10`: Inner Layer reversed
+DATA: `TTxxxxxx yyyyyymM ccccD...`
+- `T:2` = Transform type
+  - `00`: Outer layer
+  - `01`: Outer layer reversed
+  - `10`: Inner layer reversed
 - `x:6` = UV x offset (offset from original UV location in pixels)
 - `y:6` = UV y offest 
-- `m:1` = mirror texture X
-- `M:1` = mirror texture Y
+- `m:1` = Do mirror texture X
+- `M:1` = Do mirror texture Y
 - `c:4` = Bitmask of which corners to fold
 - `D:1` = Disables the texture (useful if you need space for something else)
 
