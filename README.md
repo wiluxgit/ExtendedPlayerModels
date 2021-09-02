@@ -27,7 +27,7 @@ ExtendedPlayerModels allows customization of each of the faces by setting specif
 Im assuming you are familiar with HEX codes. the hex code is treated as a bitfield to set specific properties of the face transfomation.
 
 DATA: `EDxxxxxx XYyyyyyy TT..cccc`
-- `E:1` = Enable face modifiers.
+- `E:1` = Enable face modifiers. (Must be 1 if you want anything to happen)
 - `D:1` = Disables the texture. (useful if you need space for something else)
 - `x:6` = UV x offset. (offset from original UV location in pixels)
 - `X:1` = Do mirror texture X.
