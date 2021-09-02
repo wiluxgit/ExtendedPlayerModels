@@ -1,6 +1,28 @@
 ﻿{
     "pack": {
         "pack_format": 7,
-        "description": "Fancy Pants Template - CHANGE DESCRIPTION"
+        "description": [
+			{"underlined":true,
+			"text":"E","color":"#363172"},
+			{"text":"x","color":"#4d2572"},
+			{"text":"t","color":"#5f1c74"},
+			{"text":"e","color":"#6d1574"},
+			{"text":"n","color":"#7b0e74"},
+			{"text":"d","color":"#880875"},
+			{"text":"e","color":"#890875"},
+			{"text":"d ","color":"#9C0662"},
+			{"text":"P","color":"#B0054E"},
+			{"text":"l","color":"#C4043A"},
+			{"text":"a","color":"#D70227"},
+			{"text":"y","color":"#EB0113"},
+			{"text":"e","color":"#FC1C00"},
+			{"text":"r ","color":"#FA3800"},
+			{"text":"M","color":"#F85400"},
+			{"text":"o","color":"#F67100"},
+			{"text":"d","color":"#F38D00"},
+			{"text":"e","color":"#F1AA00"},
+			{"text":"l","color":"#EFC600"},
+			{"text":"s","color":"#EDE200"}
+		]
     }
 }

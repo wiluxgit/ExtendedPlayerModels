@@ -48,6 +48,19 @@ out float wx_isEdited;
 #define AS_ROTATED 32   // how long to stretch along normal to simulate 90 deg face
 #define AS_8XALIGNED 8
 
+#define TRANSFORM_NONE (0<<4)
+#define TRANSFORM_OUTER (1<<4)
+#define TRANSFORM_OUTER_REVERSED (2<<4)
+#define TRANSFORM_INNER_REVERSED (3<<4)
+#define SCALEDIR_X_PLUS (0<<6)
+#define SCALEDIR_X_MINUS (1<<6)
+#define SCALEDIR_Y_PLUS (2<<6)
+#define SCALEDIR_Y_MINUS (3<<6)
+#define F_ENABLED (0x80)
+
+void writeDefaults(int faceId);
+void fixScaling(int faceId);
+
 void main() {
     vertexDistance = length((ModelViewMat * vec4(Position, 1.0)).xyz);
     vertexColor = minecraft_mix_light(Light0_Direction, Light1_Direction, Normal, Color);
@@ -56,104 +69,176 @@ void main() {
     texCoord0 = UV0;
     normal = ProjMat * ModelViewMat * vec4(Normal, 0.0);
 
+    
+
     if(gl_VertexID >= 18*8){ //is second layer
         vec4 topRightPixel = texelFetch(Sampler0, ivec2(0, 0), 0); //Macs can't texelfetch in vertex shader?
- 
+
         if(0==0/*topRightPixel.r == 1.0 && topRightPixel.a == 1.0*/){ 
             int cornerId = gl_VertexID % 4;
 
-            vec3 NormNormal = normalize(Normal);
             vec3 newPos = Position;
+            int faceId = gl_VertexID / 4;
+            vec4 pxData = texelFetch(Sampler0, ivec2((faceId-8)%8, (faceId-8)/8), 0)*256;
+            int data0 = int(pxData.r+0.5);
+            int data1 = int(pxData.g+0.5);
+            int data2 = int(pxData.b+0.5); 
 
-            switch (gl_VertexID / 4){
-            
-            /*case 39: // Bottom hat (18+1)*2+1     TOP LAYER ALLIGNED
-                newPos -= Normal/16.0*8.43;
-                if(cornerId>=2) 
-                    newPos += Normal*-AS_ROTATED;
-                wx_isEdited = 1;
-                wx_scalingOrigin = vec2(60,8)/64.0;
-                wx_scaling = vec2(1, AS_ROTATED*2/1.1);   //multiply by TWICE normal offset (1.1 to fix pixel size)
-                wx_minUV = vec2(56, 0)/64.0;
-                wx_maxUV = vec2(64, 8)/64.0;
-                wx_UVDisplacement = vec2(8.0,0)/64.0;
-                break;*/
+            //<debug>
+            switch(faceId) { 
+            case 39: // Bottom hat 
+                data0 = F_ENABLED | 0x0C | TRANSFORM_INNER_REVERSED;
+                data1 = 0x8 | SCALEDIR_Y_MINUS;
+                data2 = 0;
+                break;
+            case 67: data0 = (1<<0) | (1<<3) | TRANSFORM_OUTER; data1 = SCALEDIR_X_PLUS; break;  //Right jacket
+            case 66: data0 = (1<<1) | (1<<2) | TRANSFORM_OUTER; data1 = SCALEDIR_X_MINUS; break;  //Left jacket
+            case 69: data0 = (1<<0) | (1<<1) | TRANSFORM_OUTER; data1 = SCALEDIR_Y_PLUS; break;  //Bottom jacket
+            case 71: data0 = (1<<2) | (1<<3) | TRANSFORM_OUTER; data1 = SCALEDIR_Y_PLUS; break;  //Back jacket
+            } 
+            data0 = data0 | F_ENABLED; //enabled all faces for debug testing
+            //</debug>
 
-            case 39: // Bottom hat (18+1)*2+1     BASE LAYER ALLIGNED
-                if(cornerId>=2) 
-                    newPos += Normal*-AS_8XALIGNED;
-                wx_isEdited = 1;
-                wx_scalingOrigin = vec2(48+4,8)/64.0;
-                wx_scaling = vec2(1.12, AS_8XALIGNED*2*1.01);
-                wx_minUV = vec2(56, 0)/64.0;
-                wx_maxUV = vec2(64, 8)/64.0;
-                wx_UVDisplacement = vec2(8,0+8)/64.0;
-                break;
-
-            case 67: // Right jacket
-                if(cornerId == 0 || cornerId == 3) 
-                    newPos += Normal*AS_ROTATED;
-                wx_isEdited = 1;
-                wx_scalingOrigin = vec2(16,0)/64.0;
-                wx_scaling = vec2(AS_ROTATED*4, 1);
-                wx_minUV = vec2(16, 36)/64.0;
-                wx_maxUV = vec2(20, 48)/64.0;
-                wx_UVDisplacement = vec2(0,0)/64.0;
-                break;
-            
-            case 66: // Left jacket
-                if(cornerId == 1 || cornerId == 2) 
-                    newPos += Normal*AS_ROTATED;
-                wx_isEdited = 1;
-                wx_scalingOrigin = vec2(32,0)/64.0; //backwards, expands left to right
-                wx_scaling = vec2(AS_ROTATED*4, 1);
-                wx_minUV = vec2(28, 36)/64.0;
-                wx_maxUV = vec2(32, 48)/64.0;
-                wx_UVDisplacement = vec2(0,0)/64.0;
-                break;
-
-            case 69: // 69 Bottom jacket
-                if(cornerId<2) 
-                    newPos += Normal*AS_ROTATED;
-                wx_isEdited = 1;
-                wx_scalingOrigin = vec2(0,32)/64.0; 
-                wx_scaling = vec2(1, AS_ROTATED*4);
-                wx_minUV = vec2(28, 16)/64.0;
-                wx_maxUV = vec2(36, 20)/64.0;
-                wx_UVDisplacement = vec2(0,-16)/64.0;
-                break;
-
-            case 71: // 71 Back jacket
-                if(cornerId>=2) 
-                   newPos += Normal*4.0/16.0;
-                wx_isEdited = 1;
-                wx_scalingOrigin = vec2(0, 36)/64.0; 
-                wx_scaling = vec2(1,1);
-                wx_minUV = vec2(32, 36)/64.0;
-                wx_maxUV = vec2(40, 48)/64.0;
-                wx_UVDisplacement = vec2(0,0)/64.0;
-                break;
-
-            default:
-                break;
-            }   
-            if(wx_isEdited){
-                wx_passColor = Color;
-                wx_passMPos = -(ModelViewMat * vec4(newPos, 1.0)).xyz;
-                gl_Position = ProjMat * ModelViewMat * vec4(newPos, 1.0);
+            if(data0 & F_ENABLED){
+                writeDefaults(faceId);
                 
+                int cornerBits = data0 & 0xf;
+                int transformType = data0 & 0x70;
+                int uvX = data1 & 0x3F;
+                int uvY = data2 & 0x3F;
+                int strechDirection = data1 & 0xC0;
+
+                switch(strechDirection){
+                    case SCALEDIR_X_PLUS: 
+                        wx_scalingOrigin = vec2(wx_minUV.x, (wx_maxUV.y+wx_minUV.y)/2);
+                        break;
+                    case SCALEDIR_X_MINUS: 
+                        wx_scalingOrigin = vec2(wx_maxUV.x, (wx_maxUV.y+wx_minUV.y)/2);
+                        break;
+                    case SCALEDIR_Y_PLUS: 
+                        wx_scalingOrigin = vec2((wx_maxUV.x+wx_minUV.x)/2, wx_minUV.y);
+                        break;
+                    case SCALEDIR_Y_MINUS: 
+                        wx_scalingOrigin = vec2((wx_maxUV.x+wx_minUV.x)/2, wx_maxUV.y);
+                        break;
+                }
+
+                int isSelectedCorner = (1<<cornerId) & cornerBits;
+                //vec2 size = wx_maxUV-wx_minUV; //Could be used to generalize wx_scaling i think
+
+                if(float(uvX)/64.0 + wx_maxUV.x > 1) uvX -= 64; // Seeings as UV frag cut is capped inside 0..1 must 
+                if(float(uvY)/64.0 + wx_maxUV.y > 1) uvY -= 64; //  this makes sure offset wraps correctly
+                wx_UVDisplacement = vec2(uvX,uvY) / 64.0;
+
+                switch (faceId){
+                case 39: // Bottom hat 
+                    wx_isEdited = 1;
+                    switch(transformType){
+                    case TRANSFORM_OUTER:
+                        if(isSelectedCorner) newPos += Normal*AS_ROTATED;
+                        wx_scaling = vec2(1, AS_ROTATED*2/1.1);
+                        break;
+                    case TRANSFORM_OUTER_REVERSED:
+                        newPos -= Normal/16.0*8.43;
+                        if(isSelectedCorner) newPos += Normal*-AS_ROTATED;
+                        wx_scaling = vec2(1, AS_ROTATED*2/1.1);
+                        break;
+                    case TRANSFORM_INNER_REVERSED:
+                        wx_minUV -= vec2(0,8)/64; //needed since reverse. Effectively shifts the clipmask
+                        wx_maxUV -= vec2(0,8)/64;
+                        wx_UVDisplacement += vec2(0,8)/64.0; //needed since reverse. Effectively shifts the clipmask
+                        if(isSelectedCorner) newPos += Normal*-AS_8XALIGNED;
+                        wx_scaling = vec2(1.12, AS_8XALIGNED*2*1.01);
+                        overlayColor = vec4(1,0,0,1);
+                        break;
+                    }
+                    break;
+
+                case 67: //Right Shirt
+                    wx_isEdited = 1;
+                    switch(transformType) {
+                    case TRANSFORM_OUTER:
+                        if(isSelectedCorner) newPos += Normal*AS_ROTATED;
+                        wx_scaling = vec2(AS_ROTATED*4, 1);
+                        break;
+                    }
+                    break;
+                    
+                case 66: //Left Shirt
+                    wx_isEdited = 1;
+                    switch(transformType) {
+                    case TRANSFORM_OUTER:
+                        if(isSelectedCorner) newPos += Normal*AS_ROTATED;
+                        wx_scaling = vec2(AS_ROTATED*4, 1);
+                        break;
+                    }
+                    break;
+                
+                case 69: // Bottom Shirt
+                    wx_isEdited = 1;
+                    switch(transformType) {
+                    case TRANSFORM_OUTER:
+                        if(isSelectedCorner) newPos += Normal*AS_ROTATED;
+                        wx_scaling = vec2(1, AS_ROTATED*4);
+                        break;
+                    }
+                    break;
+
+                case 71: // Back jacket
+                    wx_isEdited = 1;
+                    switch(transformType) {
+                    case TRANSFORM_OUTER:
+                        if(isSelectedCorner) newPos += Normal*AS_ROTATED;
+                        wx_scaling = vec2(1, AS_ROTATED*4/3);
+                        break;
+                    }
+                    break;
+                }
+                if(wx_isEdited){
+                    wx_passColor = Color;
+                    wx_passMPos = -(ModelViewMat * vec4(newPos, 1.0)).xyz;
+                    gl_Position = ProjMat * ModelViewMat * vec4(newPos, 1.0);
+                } else {
+                    gl_Position = ProjMat * ModelViewMat * vec4(Position, 1.0);
+                }    
             } else {
                 gl_Position = ProjMat * ModelViewMat * vec4(Position, 1.0);
-            }    
+            }
         } else {
             gl_Position = ProjMat * ModelViewMat * vec4(Position, 1.0);
-        }
+        }        
     } else {
         gl_Position = ProjMat * ModelViewMat * vec4(Position, 1.0);
         
         //passNormal = Normal;
         //passColor = Color;
     }
+
+}
+
+void writeDefaults(int faceId){
+    switch(faceId){
+    case 39: //Bottom Hat
+        wx_minUV = vec2(48, 0)/64.0;
+        wx_maxUV = vec2(56, 8)/64.0;
+        break;
+    case 67: //Right Shirt
+        wx_minUV = vec2(16, 36)/64.0;
+        wx_maxUV = vec2(20, 48)/64.0;
+        break;
+    case 66: //Left Shirt
+        wx_minUV = vec2(28, 36)/64.0;
+        wx_maxUV = vec2(32, 48)/64.0;
+        break;
+    case 69: //Bottom Shirt
+        wx_minUV = vec2(28, 32)/64.0;
+        wx_maxUV = vec2(36, 36)/64.0;
+        break;
+    case 71: //Back Shirt
+        wx_minUV = vec2(32, 36)/64.0;
+        wx_maxUV = vec2(40, 48)/64.0;
+    }
+}
 
     /*
     if(gl_VertexID >= 5*8+4 && gl_VertexID <= 5*8+7){ //back body
@@ -265,6 +350,3 @@ void main() {
     //overlayColor.r = UV0.x;
     //overlayColor.g = UV0.y;
     //overlayColor.a = 0;
-    
-
-}

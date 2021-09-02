@@ -43,7 +43,7 @@ void main() {
         /*
         // TESTING TO FIX LIGHTING
         //`nnormal` is the badly calculated `normal`m 
-        //nnormal(skewed face) == normal(face)
+        //nnormal of skewed face == normal of unskwed face
         vec3 nnormal = normalize(cross(dFdx(passMPos), dFdy(passMPos)));
         nnormal.z*=-1;
 
@@ -58,16 +58,18 @@ void main() {
         
         vec2 diff = texCoord0-wx_scalingOrigin;
 
-        vec2 newTexCoord = (texCoord0 - diff) + (diff * wx_scaling) + wx_UVDisplacement;
+        vec2 newTexCoord = (texCoord0 - diff) + (diff * wx_scaling);
         
         if(newTexCoord.y < wx_minUV.y || newTexCoord.y > wx_maxUV.y) discard;
         if(newTexCoord.x < wx_minUV.x || newTexCoord.x > wx_maxUV.x) discard;
+
+        newTexCoord += wx_UVDisplacement;
         
         color = texture(Sampler0, newTexCoord);
         
-        //if (color.a < 0.1) {
-        //    discard;
-        //}
+        if (color.a < 0.1) {
+            discard;
+        }
         
         vec4 vxColor = vec4(1,1,1,1);
 
@@ -77,9 +79,10 @@ void main() {
 
         fragColor = linear_fog(color, vertexDistance, FogStart, FogEnd, FogColor);
         
-        fragColor = vec4(mod(newTexCoord.x*8,1), mod(newTexCoord.y*8,1), mod(newTexCoord.y*2,1), 1);
+        //fragColor = vec4(mod(newTexCoord.x*8,1), mod(newTexCoord.y*8,1), mod(newTexCoord.y*2,1), 1);
         //float modx = dot(Light0_Direction, nnormal);
         //fragColor = vec4(max(0.0, modx),0,0,1);
+        //fragColor = overlayColor;
     } else {
 
         if (color.a < 0.1) {
