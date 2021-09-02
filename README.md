@@ -13,7 +13,7 @@ This section contains all useful examples for player models
 Each face has an ID, see list in ...md 
 
 The face data is position is located at:
-Y = (ID-32)%8, X = floor((ID-32)/8)
+`X = (ID-32)%8`, `Y = floor((ID-32)/8)`
 
 Treat the RGBA value at this position 1 integer
 DATA: `TTxxxxxx yyyyyymM bbbb____ ________`
