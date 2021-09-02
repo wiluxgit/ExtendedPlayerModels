@@ -5,7 +5,7 @@ Works with multiplayer
 ![image](https://user-images.githubusercontent.com/70565775/131851851-0a27216d-7eca-48c3-aa64-cd16b85919a8.png)
 
 ## DOWNLOAD
-DOWNLOAD:
+Clone git //TODO tutorial
 
 ## Editing
 ### Basic Editing
