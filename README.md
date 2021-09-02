@@ -26,17 +26,19 @@ ExtendedPlayerModels allows customization of each of the faces by setting specif
 
 Im assuming you are familiar with HEX codes. the hex code is treated as a bitfield to set specific properties of the face transfomation.
 
-DATA: `TTxxxxxx yyyyyymM ccccD...`
-- `T:2` = Transform type
+DATA: `EDxxxxxx XYyyyyyy TTcccc..`
+- `E:1` = Enable face modifiers.
+- `D:1` = Disables the texture. (useful if you need space for something else)
+- `x:6` = UV x offset. (offset from original UV location in pixels)
+- `X:1` = Do mirror texture X.
+- `Y:1` = Do mirror texture Y.
+- `y:6` = UV y offest.
+- `T:2` = Transform type.
   - `00`: Outer layer
   - `01`: Outer layer reversed
   - `10`: Inner layer reversed
-- `x:6` = UV x offset (offset from original UV location in pixels)
-- `y:6` = UV y offest 
-- `m:1` = Do mirror texture X
-- `M:1` = Do mirror texture Y
-- `c:4` = Bitmask of which corners to fold
-- `D:1` = Disables the texture (useful if you need space for something else)
+  - `11`: None
+- `c:4` = Bitmask of which corners to fold.
 
 
 ### TODO
