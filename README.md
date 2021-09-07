@@ -1,6 +1,6 @@
 
 # ExtendedPlayerModels
-A Minecraft 1.17 Resource Pack (shader) which makes it possible to customize player models.
+A Minecraft 1.17 Vanilla Resource Pack which makes it possible to customize player models.
 Works with multiplayer
 
 ## 0. (BETA) MUST READ 
@@ -13,12 +13,12 @@ https://github.com/OscarDahlqvist/ExtendedPlayerModels/archive/refs/heads/master
 
 Note: Lighting of the transformed faces is broken, this *should* be fixed soon.
 ## 2. Submitting
-I'd love to see more community feedback & suggestions to this repo. You can either suggest features as "issue" or if you're a king you can also submit code suggestions.
+I'd love to see more community feedback & suggestions to this repo. You can either suggest a by creating an issue or if you're a true jedi you can also submit code suggestions.
 
 My discord for Dms: Wilux#3918
 
 ## 3. Editing
-### 3.0 What of the model can be edited?
+### 3.0 What even can be edited?
 First of all, polygons can NOT be added, only moved.
 Additionally, due to quirks of the minecraft shader wrapper vertexes can only be moved along the facing (normal) of the face or they will end up distorted*.
 
@@ -46,15 +46,14 @@ So the bottom face of the head would have ID=`39` and be located at `7,3`
 
 I'm assuming you are familiar with color hex codes. The hex code is treated as a bitfield to set specific properties of the face transformation.
 
-RGB: `#RR GG BB` = `ETTTcccc LLxxxxxx XYyyyyyy`
+RGB: `#RRGGBB` = `ETTTcccc LLxxxxxx XYyyyyyy`
 - `E:1` = Enable face modifiers. (Must be 1 if you want anything to happen)
 - `T:3` = Transform type. (see image in section 3.0)
   - `000`: None
   - `001`: Outer
   - `010`: Outer reversed
   - `011`: Inner reversed
-  - `100`: Direct **(NOT IMPLEMENTED)**
-  - `111`: Advanced  **(NOT IMPLEMENTED)**
+  - `100`: Manual **(NOT IMPLEMENTED)** (Indirect, see section 3.2.1)
 - `c:4` = Bitmask of which corners to fold. *(must be 2 bits (or 0))*
 - `L:2` = Scaling Direction. *(the direction in the UV map from the fixed edge to the center of the face)*
 	- `00`: X+ 
@@ -65,6 +64,20 @@ RGB: `#RR GG BB` = `ETTTcccc LLxxxxxx XYyyyyyy`
 - `X:1` = flip X **(NOT IMPLEMENTED)**
 - `Y:1` = flip Y **(NOT IMPLEMENTED)**
 - `y:6` = UV y offset.
+
+### 3.2.1 Indirect Transforms
+Indirect transforms require additional data and will use the 6 least significant bits of alpha value of the pixel and as a reference to a EXT data pixel. What this pixel's value is used for depends on the transform.
+alpha = `--aaaAAA` 
+ - `a:3`: x position in EXT section
+ - `A:3`: y position in EXT section
+ 
+The secondary data pixel is denoted `EXD`.  Several faces can share the same EXT data pixel,
+
+ - **Manual** `(T=100)`
+   Allows you to set pixel displacement for the transform by hand.
+   - offsets corners **not** selected by the corner bitmask `c` by `EXD.r/32-16` pixels
+   - offsets corners selected by the corner bitmask `c` by `EXD.g/32-16` pixels
+
 
 
 ### 3.3 Examples
