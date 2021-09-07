@@ -85,6 +85,6 @@ Data pixel used as argument of transform = `pixel(X+24,Y)`
 
 ### 3.3 Examples
  ![image](https://user-images.githubusercontent.com/70565775/131921159-a5d28fa3-698a-4f93-a9a8-a57f078c20f1.png)
-![thaumux_fire](https://user-images.githubusercontent.com/70565775/131922242-60d9a760-ff7c-490e-9a9d-b5e47ae4a005.png)
+![thaumux_fire](https://user-images.githubusercontent.com/70565775/131922242-60d9a760-ff7c-490e-9a9d-b5e47ae4a005.png) <br>
 Separate UV "Ears" attached to front of inner skin `PIXEL(7,3) = #BCC800 = 10111100 11001000 00000000`
 
