@@ -38,7 +38,7 @@ out vec4 normal;
 out vec4 wx_passColor;  //for debugging
 out vec3 wx_passMPos;   //for experimental normal calculation
 out vec3 wx_passNormal; //for debugging
-out vec2 wx_scalingOrigin; //axis not scaled around MUST be 0
+out vec2 wx_scalingOrigin; 
 out vec2 wx_scaling;
 out vec2 wx_maxUV;
 out vec2 wx_minUV;
@@ -81,11 +81,12 @@ void main() {
             int data0 = int(pxData.r+0.5);
             int data1 = int(pxData.g+0.5);
             int data2 = int(pxData.b+0.5); 
-            /*
+
             //<debug>
             switch(faceId) {    
             //case 39: data0 = (1<<2) | (1<<3) | TRANSFORM_INNER_REVERSED | F_ENABLED; data1 = 0x8 | SCALEDIR_Y_MINUS; break; // Bottom hat 
 
+            case 36: data0 = (1<<0) | (1<<3) | TRANSFORM_OUTER | F_ENABLED; data1 = SCALEDIR_X_MINUS; break; // Left hat
             case 37: data0 = (1<<1) | (1<<2) | TRANSFORM_OUTER | F_ENABLED; data1 = SCALEDIR_X_PLUS; break; // Right hat
             case 38: data0 = (1<<1) | (1<<0) | TRANSFORM_OUTER | F_ENABLED; data1 = SCALEDIR_Y_PLUS; break; // Top hat
 
@@ -95,7 +96,6 @@ void main() {
             case 71: data0 = (1<<2) | (1<<3) | TRANSFORM_OUTER | F_ENABLED; data1 = SCALEDIR_Y_PLUS; break;  //Back jacket
             }
             //</debug>
-            */
 
             if(data0 & F_ENABLED){
                 wx_isEdited = 1; 
@@ -126,8 +126,8 @@ void main() {
                 int isSelectedCorner = (1<<cornerId) & cornerBits;
                 vec2 size = wx_maxUV-wx_minUV; //Could be used to generalize wx_scaling i think
 
-                //if(float(uvX)/64.0 + wx_minUV.x >= 1) uvX -= 64; // Seeings as UV frag cut is capped inside 0..1 this 
-                //if(float(uvY)/64.0 + wx_minUV.y >= 1) uvY -= 64; //  is needed for wrapping offsets
+                if(float(uvX)/64.0 + wx_minUV.x >= 1) uvX -= 64; // Seeings as UV frag cut is capped inside 0..1 this 
+                if(float(uvY)/64.0 + wx_minUV.y >= 1) uvY -= 64; //  is needed for wrapping offsets
                 wx_UVDisplacement = vec2(uvX,uvY) / 64.0;
 
                 switch(transformType) {                    
@@ -164,7 +164,7 @@ void main() {
                             }
                         break;
 
-                    case TRANSFORM_INNER_REVERSED: // kinda broken for most axis
+                    case TRANSFORM_INNER_REVERSED: // kinda broken for most faces
                         int perpLen2 = getPerpendicularLength(faceId);
 
                         if(isSelectedCorner) 
@@ -238,15 +238,15 @@ void writeDefaults(int faceId){
     // ======== Hat ========
     case 36: //Left Hat
         wx_minUV = vec2(48, 8)/64.0;
-        wx_minUV = vec2(56, 16)/64.0;
+        wx_maxUV = vec2(56, 16)/64.0;
         return;
     case 37: //Right Hat
         wx_minUV = vec2(32, 8)/64.0;
-        wx_minUV = vec2(40, 16)/64.0;
+        wx_maxUV = vec2(40, 16)/64.0;
         return;
     case 38: //Top Hat
         wx_minUV = vec2(40, 0)/64.0;
-        wx_minUV = vec2(48, 8)/64.0;
+        wx_maxUV = vec2(48, 8)/64.0;
         return;
     case 39: //Bottom Hat
         wx_minUV = vec2(48, 0)/64.0;
@@ -254,81 +254,81 @@ void writeDefaults(int faceId){
         return;
     case 40: //Front Hat
         wx_minUV = vec2(40, 8)/64.0;
-        wx_minUV = vec2(48, 16)/64.0;
+        wx_maxUV = vec2(48, 16)/64.0;
         return;
     case 41: //Back Hat
         wx_minUV = vec2(56, 8)/64.0;
-        wx_minUV = vec2(64, 16)/64.0;
+        wx_maxUV = vec2(64, 16)/64.0;
         return;
 
     // ======== L-pant ========
     case 42: //Left L-Pant
         wx_minUV = vec2(8, 52)/64.0;
-        wx_minUV = vec2(12, 64)/64.0;
+        wx_maxUV = vec2(12, 64)/64.0;
         return;
     case 43: //Right L-Pant
         wx_minUV = vec2(0, 52)/64.0;
-        wx_minUV = vec2(4, 64)/64.0;
+        wx_maxUV = vec2(4, 64)/64.0;
         return;
     case 44: //Top L-Pant
         wx_minUV = vec2(4, 48)/64.0;
-        wx_minUV = vec2(8, 52)/64.0;
+        wx_maxUV = vec2(8, 52)/64.0;
         return;
     case 45: //Bottom L-Pant
         wx_minUV = vec2(8, 48)/64.0;
-        wx_minUV = vec2(12, 52)/64.0;
+        wx_maxUV = vec2(12, 52)/64.0;
         return;
     case 46: //Front L-Pant
         wx_minUV = vec2(4, 52)/64.0;
-        wx_minUV = vec2(8, 64)/64.0;
+        wx_maxUV = vec2(8, 64)/64.0;
         return;
     case 47: //Back L-Pant
         wx_minUV = vec2(12, 52)/64.0;
-        wx_minUV = vec2(16, 64)/64.0;
+        wx_maxUV = vec2(16, 64)/64.0;
         return;
 
     // ======== R-Pant ========
     case 48: //Left R-Pant
         wx_minUV = vec2(8, 36)/64.0;
-        wx_minUV = vec2(12, 48)/64.0;
+        wx_maxUV = vec2(12, 48)/64.0;
         return;
     case 49: //Right R-Pant
         wx_minUV = vec2(0, 36)/64.0;
-        wx_minUV = vec2(4, 48)/64.0;
+        wx_maxUV = vec2(4, 48)/64.0;
         return;
     case 50: //Top R-Pant
         wx_minUV = vec2(4, 32)/64.0;
-        wx_minUV = vec2(8, 36)/64.0;
+        wx_maxUV = vec2(8, 36)/64.0;
         return;
     case 51: //Bottom R-Pant
         wx_minUV = vec2(8, 32)/64.0;
-        wx_minUV = vec2(12, 36)/64.0;
+        wx_maxUV = vec2(12, 36)/64.0;
         return;
     case 52: //Front R-Pant
         wx_minUV = vec2(4, 36)/64.0;
-        wx_minUV = vec2(8, 48)/64.0;
+        wx_maxUV = vec2(8, 48)/64.0;
         return;
     case 53: //Back R-Pant
         wx_minUV = vec2(12, 36)/64.0;
-        wx_minUV = vec2(16, 48)/64.0;
+        wx_maxUV = vec2(16, 48)/64.0;
         return;
 
     // ======== R-Shirt ========
     case 54: //Left R-Shirt
         wx_minUV = vec2(48, 36)/64.0;
-        wx_minUV = vec2(52, 48)/64.0;
+        wx_maxUV = vec2(52, 48)/64.0;
         return;
     case 55: //Right R-Shirt
         wx_minUV = vec2(40, 36)/64.0;
-        wx_minUV = vec2(44, 48)/64.0;
+        wx_maxUV = vec2(44, 48)/64.0;
         return;
     case 56: //Top R-Shirt
         wx_minUV = vec2(44, 32)/64.0;
-        wx_minUV = vec2(48, 36)/64.0;
+        wx_maxUV = vec2(48, 36)/64.0;
         return;
     case 57: //Bottom R-Shirt
         wx_minUV = vec2(48, 32)/64.0;
-        wx_minUV = vec2(52, 36)/64.0;
+        wx_maxUV = vec2(52, 36)/64.0;
         return;
     case 58: //Front R-Shirt
         wx_minUV = vec2(44, 36)/64.0;
@@ -336,33 +336,33 @@ void writeDefaults(int faceId){
         return;
     case 59: //Back R-Shirt
         wx_minUV = vec2(52, 36)/64.0;
-        wx_minUV = vec2(56, 48)/64.0;
+        wx_maxUV = vec2(56, 48)/64.0;
         return;
 
     // ======== L-Shirt ========
     case 60: //Left L-Shirt
         wx_minUV = vec2(8+48, 52)/64.0;
-        wx_minUV = vec2(12+48, 64)/64.0;
+        wx_maxUV = vec2(12+48, 64)/64.0;
         return;
     case 61: //Right L-Shirt
         wx_minUV = vec2(0+48, 52)/64.0;
-        wx_minUV = vec2(4+48, 64)/64.0;
+        wx_maxUV = vec2(4+48, 64)/64.0;
         return;
     case 62: //Top L-Shirt
         wx_minUV = vec2(4+48, 48)/64.0;
-        wx_minUV = vec2(8+48, 52)/64.0;
+        wx_maxUV = vec2(8+48, 52)/64.0;
         return;
     case 63: //Bottom L-Shirt
         wx_minUV = vec2(8+48, 48)/64.0;
-        wx_minUV = vec2(12+48, 52)/64.0;
+        wx_maxUV = vec2(12+48, 52)/64.0;
         return;
     case 64: //Front L-Shirt
         wx_minUV = vec2(4+48, 52)/64.0;
-        wx_minUV = vec2(8+48, 64)/64.0;
+        wx_maxUV = vec2(8+48, 64)/64.0;
         return;
     case 65: //Back L-Shirt
         wx_minUV = vec2(12+48, 52)/64.0;
-        wx_minUV = vec2(16+48, 64)/64.0;
+        wx_maxUV = vec2(16+48, 64)/64.0;
         return;
 
     // ======== Shirt ========
