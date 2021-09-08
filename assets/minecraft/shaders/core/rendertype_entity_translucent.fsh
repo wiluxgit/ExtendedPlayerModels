@@ -79,7 +79,7 @@ void main() {
 
         fragColor = linear_fog(color, vertexDistance, FogStart, FogEnd, FogColor);
         
-        //fragColor = vec4(mod(newTexCoord.x*8,1), mod(newTexCoord.y*8,1), mod(newTexCoord.y*2,1), 1);
+        fragColor = vec4(mod(newTexCoord.x*8,1), mod(newTexCoord.y*8,1), mod(newTexCoord.y*2,1), 1);
         //float modx = dot(Light0_Direction, nnormal);
         //fragColor = vec4(max(0.0, modx),0,0,1);
         //fragColor = overlayColor;

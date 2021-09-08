@@ -45,8 +45,7 @@ out vec2 wx_minUV;
 out vec2 wx_UVDisplacement;
 out float wx_isEdited;
 
-#define AS_ROTATED 32   // how long to stretch along normal to simulate 90 deg face
-#define AS_8XALIGNED 8
+#define AS_OUTER (32.0)   // how long to stretch along normal to simulate 90 deg face
 
 #define TRANSFORM_NONE (0<<4)
 #define TRANSFORM_OUTER (1<<4)
@@ -58,6 +57,7 @@ out float wx_isEdited;
 #define SCALEDIR_Y_MINUS (3<<6)
 #define F_ENABLED (0x80)
 
+int getPerpendicularLength(int faceId);
 void writeDefaults(int faceId);
 void fixScaling(int faceId);
 
@@ -67,9 +67,7 @@ void main() {
     lightMapColor = texelFetch(Sampler2, UV2 / 16, 0);
     overlayColor = texelFetch(Sampler1, UV1, 0);
     texCoord0 = UV0;
-    normal = ProjMat * ModelViewMat * vec4(Normal, 0.0);
-
-    
+    normal = ProjMat * ModelViewMat * vec4(Normal, 0.0);    
 
     if(gl_VertexID >= 18*8){ //is second layer
         vec4 topRightPixel = texelFetch(Sampler0, ivec2(0, 0), 0); //Macs can't texelfetch in vertex shader?
@@ -83,21 +81,21 @@ void main() {
             int data0 = int(pxData.r+0.5);
             int data1 = int(pxData.g+0.5);
             int data2 = int(pxData.b+0.5); 
-
-            //<debug>
             /*
-            switch(faceId) { 
-            case 39: // Bottom hat 
-                data0 = (1<<2) | (1<<3) | TRANSFORM_INNER_REVERSED | F_ENABLED;
-                data1 = 0x8 | SCALEDIR_Y_MINUS;
-                break;
+            //<debug>
+            switch(faceId) {    
+            //case 39: data0 = (1<<2) | (1<<3) | TRANSFORM_INNER_REVERSED | F_ENABLED; data1 = 0x8 | SCALEDIR_Y_MINUS; break; // Bottom hat 
+
+            case 37: data0 = (1<<1) | (1<<2) | TRANSFORM_OUTER | F_ENABLED; data1 = SCALEDIR_X_PLUS; break; // Right hat
+            case 38: data0 = (1<<1) | (1<<0) | TRANSFORM_OUTER | F_ENABLED; data1 = SCALEDIR_Y_PLUS; break; // Top hat
+
             case 67: data0 = (1<<0) | (1<<3) | TRANSFORM_OUTER | F_ENABLED; data1 = SCALEDIR_X_PLUS; break;  //Right jacket
             case 66: data0 = (1<<1) | (1<<2) | TRANSFORM_OUTER | F_ENABLED; data1 = SCALEDIR_X_MINUS; break;  //Left jacket
             case 69: data0 = (1<<0) | (1<<1) | TRANSFORM_OUTER | F_ENABLED; data1 = SCALEDIR_Y_PLUS; break;  //Bottom jacket
             case 71: data0 = (1<<2) | (1<<3) | TRANSFORM_OUTER | F_ENABLED; data1 = SCALEDIR_Y_PLUS; break;  //Back jacket
             }
-            */
             //</debug>
+            */
 
             if(data0 & F_ENABLED){
                 wx_isEdited = 1; 
@@ -128,251 +126,270 @@ void main() {
                 int isSelectedCorner = (1<<cornerId) & cornerBits;
                 vec2 size = wx_maxUV-wx_minUV; //Could be used to generalize wx_scaling i think
 
-                if(float(uvX)/64.0 + wx_minUV.x >= 1) uvX -= 64; // Seeings as UV frag cut is capped inside 0..1 this 
-                if(float(uvY)/64.0 + wx_minUV.y >= 1) uvY -= 64; //  is needed for wrapping offsets
+                //if(float(uvX)/64.0 + wx_minUV.x >= 1) uvX -= 64; // Seeings as UV frag cut is capped inside 0..1 this 
+                //if(float(uvY)/64.0 + wx_minUV.y >= 1) uvY -= 64; //  is needed for wrapping offsets
                 wx_UVDisplacement = vec2(uvX,uvY) / 64.0;
 
                 switch(transformType) {                    
-                case TRANSFORM_OUTER:
-                    if(isSelectedCorner) 
-                        newPos += Normal*AS_ROTATED;
-                    switch(strechDirection) {
-                    case SCALEDIR_X_PLUS: 
-                    case SCALEDIR_X_MINUS: 
-                        wx_scaling = vec2(AS_ROTATED*1.0/(size.x*4.0), 1);
-                        break;
-                    case SCALEDIR_Y_PLUS: 
-                    case SCALEDIR_Y_MINUS: 
-                        wx_scaling = vec2(1, AS_ROTATED*1.0/(size.y*4.0));
-                        break;
-                    }
-                    break;
-                /*
-                case TRANSFORM_OUTER_REVERSED:
-                    switch(strechDirection) {
-                    case SCALEDIR_X_PLUS: 
-                    case SCALEDIR_X_MINUS: 
-                        newPos -= Normal*(1.0*size.x*8.0);
+                    case TRANSFORM_OUTER:
                         if(isSelectedCorner) 
-                            newPos -= Normal*AS_ROTATED;
-                        wx_scaling = vec2(AS_ROTATED*1.0/(size.x*4.0), 1);
+                            newPos += Normal*AS_OUTER;
+                        switch(strechDirection) {
+                            case SCALEDIR_X_PLUS: 
+                            case SCALEDIR_X_MINUS: 
+                                wx_scaling = vec2(AS_OUTER/(size.x*4.0), 1);
+                                break;
+                            case SCALEDIR_Y_PLUS: 
+                            case SCALEDIR_Y_MINUS: 
+                                wx_scaling = vec2(1, AS_OUTER/(size.y*4.0));
+                                break;
+                            }
                         break;
-                    case SCALEDIR_Y_PLUS: 
-                    case SCALEDIR_Y_MINUS: 
-                        newPos -= Normal*(1.0*size.y*8.0);
+
+                    case TRANSFORM_OUTER_REVERSED:
+                        int perpLen1 = getPerpendicularLength(faceId);
+
+                        newPos -= Normal*(perpLen1/16.0);
                         if(isSelectedCorner) 
-                            newPos -= Normal*AS_ROTATED;
-                        wx_scaling = vec2(1, AS_ROTATED*1.0/(size.y*4.0));
+                            newPos -= Normal*AS_OUTER;
+                        switch(strechDirection) {
+                            case SCALEDIR_X_PLUS: 
+                            case SCALEDIR_X_MINUS: 
+                                wx_scaling = vec2(AS_OUTER/(size.x*4.0), 1);
+                                break;
+                            case SCALEDIR_Y_PLUS: 
+                            case SCALEDIR_Y_MINUS: 
+                                wx_scaling = vec2(1, AS_OUTER/(size.y*4.0));
+                                break;
+                            }
                         break;
-                    }
-                    break;
-                */
+
+                    case TRANSFORM_INNER_REVERSED: // kinda broken for most axis
+                        int perpLen2 = getPerpendicularLength(faceId);
+
+                        if(isSelectedCorner) 
+                            newPos -= Normal*perpLen2;
+                        switch(strechDirection) {
+                            case SCALEDIR_X_PLUS: 
+                            case SCALEDIR_X_MINUS: 
+                                wx_scaling = vec2(perpLen2/(size.x*4.0)/1.01, 1.12);
+                                
+                                wx_minUV -= vec2(perpLen2, 0)/64; //needed since reverse. Effectively shifts the clipmask
+                                wx_maxUV -= vec2(perpLen2, 0)/64;
+                                wx_UVDisplacement += vec2(perpLen2, 0)/64.0; //needed since reverse. Effectively shifts the clipmask
+                                break;
+                            case SCALEDIR_Y_PLUS: 
+                            case SCALEDIR_Y_MINUS: 
+                                wx_scaling = vec2(1.12, perpLen2/(size.y*4.0)/1.01);
+                                
+                                wx_minUV -= vec2(0, perpLen2)/64; //needed since reverse. Effectively shifts the clipmask
+                                wx_maxUV -= vec2(0, perpLen2)/64;
+                                wx_UVDisplacement += vec2(0, perpLen2)/64.0; //needed since reverse. Effectively shifts the clipmask
+                                break;
+                            }
+                        break;
                 }
 
-                switch (faceId){
-                case 39: // Bottom hat 
-                    wx_isEdited = 1;
-                    switch(transformType){
-                    case TRANSFORM_OUTER:
-                        if(isSelectedCorner) newPos += Normal*AS_ROTATED;
-                        wx_scaling = vec2(1, AS_ROTATED*2/1.1);
-                        break;
-                    case TRANSFORM_OUTER_REVERSED:
-                        newPos -= Normal/16.0*8.43;
-                        if(isSelectedCorner) newPos += Normal*-AS_ROTATED;
-                        wx_scaling = vec2(1, AS_ROTATED*2/1.1);
-                        break;
-                    case TRANSFORM_INNER_REVERSED:
-                        wx_minUV -= vec2(0,8)/64; //needed since reverse. Effectively shifts the clipmask
-                        wx_maxUV -= vec2(0,8)/64;
-                        wx_UVDisplacement += vec2(0,8)/64.0; //needed since reverse. Effectively shifts the clipmask
-                        if(isSelectedCorner) newPos += Normal*-AS_8XALIGNED;
-                        wx_scaling = vec2(1.12, AS_8XALIGNED*2*1.01);
-                        overlayColor = vec4(1,0,0,1);
-                        break;
-                    }
-                    break;
-                }
-                if(wx_isEdited){
-                    wx_passColor = Color;
-                    wx_passMPos = -(ModelViewMat * vec4(newPos, 1.0)).xyz;
-                    gl_Position = ProjMat * ModelViewMat * vec4(newPos, 1.0);
-                } else {
-                    gl_Position = ProjMat * ModelViewMat * vec4(Position, 1.0);
-                }    
+                wx_passColor = Color;
+                wx_passMPos = -(ModelViewMat * vec4(newPos, 1.0)).xyz;
+                gl_Position = ProjMat * ModelViewMat * vec4(newPos, 1.0);
             } else {
                 gl_Position = ProjMat * ModelViewMat * vec4(Position, 1.0);
-            }
+            }     
         } else {
             gl_Position = ProjMat * ModelViewMat * vec4(Position, 1.0);
         }        
     } else {
         gl_Position = ProjMat * ModelViewMat * vec4(Position, 1.0);
-        
-        //passNormal = Normal;
-        //passColor = Color;
-    }
-
+    }   
 }
 
-// Can be optimized?
+// retuns the length (in pixels) of the parallel face
+int getPerpendicularLength(int faceId) {
+    int facetype = faceId/6;
+    int faceAxis = faceId%6;
+    int perpendicularLength;
+    switch(facetype) {
+    case 6: //Head
+        return 8;
+    case 7:
+    case 8:
+    case 9:
+    case 10:
+        if(faceAxis == 2 || faceAxis == 3){ // Top/Bot
+            return 12;
+        } else {
+            return 4; // Account for Alex models?
+        }
+    case 11:
+        if(faceAxis == 0 || faceAxis == 1) { // Left/Right
+            return 8;
+        } else if(faceAxis == 2 || faceAxis == 3) {// Top/Bot
+            return 12;
+        } else { // Front/Back
+            return 4;
+        }
+    }
+}
+
+// Can be optimized
 void writeDefaults(int faceId){
     switch(faceId){
     // ======== Hat ========
     case 36: //Left Hat
         wx_minUV = vec2(48, 8)/64.0;
         wx_minUV = vec2(56, 16)/64.0;
-        break;
+        return;
     case 37: //Right Hat
         wx_minUV = vec2(32, 8)/64.0;
         wx_minUV = vec2(40, 16)/64.0;
-        break;
+        return;
     case 38: //Top Hat
         wx_minUV = vec2(40, 0)/64.0;
         wx_minUV = vec2(48, 8)/64.0;
-        break;
+        return;
     case 39: //Bottom Hat
         wx_minUV = vec2(48, 0)/64.0;
         wx_maxUV = vec2(56, 8)/64.0;
-        break;
+        return;
     case 40: //Front Hat
         wx_minUV = vec2(40, 8)/64.0;
         wx_minUV = vec2(48, 16)/64.0;
-        break;
+        return;
     case 41: //Back Hat
         wx_minUV = vec2(56, 8)/64.0;
         wx_minUV = vec2(64, 16)/64.0;
-        break;
+        return;
 
     // ======== L-pant ========
     case 42: //Left L-Pant
         wx_minUV = vec2(8, 52)/64.0;
         wx_minUV = vec2(12, 64)/64.0;
-        break;
+        return;
     case 43: //Right L-Pant
         wx_minUV = vec2(0, 52)/64.0;
         wx_minUV = vec2(4, 64)/64.0;
-        break;
+        return;
     case 44: //Top L-Pant
         wx_minUV = vec2(4, 48)/64.0;
         wx_minUV = vec2(8, 52)/64.0;
-        break;
+        return;
     case 45: //Bottom L-Pant
         wx_minUV = vec2(8, 48)/64.0;
         wx_minUV = vec2(12, 52)/64.0;
-        break;
+        return;
     case 46: //Front L-Pant
         wx_minUV = vec2(4, 52)/64.0;
         wx_minUV = vec2(8, 64)/64.0;
-        break;
+        return;
     case 47: //Back L-Pant
         wx_minUV = vec2(12, 52)/64.0;
         wx_minUV = vec2(16, 64)/64.0;
-        break;
+        return;
 
     // ======== R-Pant ========
     case 48: //Left R-Pant
         wx_minUV = vec2(8, 36)/64.0;
         wx_minUV = vec2(12, 48)/64.0;
-        break;
+        return;
     case 49: //Right R-Pant
         wx_minUV = vec2(0, 36)/64.0;
         wx_minUV = vec2(4, 48)/64.0;
-        break;
+        return;
     case 50: //Top R-Pant
         wx_minUV = vec2(4, 32)/64.0;
         wx_minUV = vec2(8, 36)/64.0;
-        break;
+        return;
     case 51: //Bottom R-Pant
         wx_minUV = vec2(8, 32)/64.0;
         wx_minUV = vec2(12, 36)/64.0;
-        break;
+        return;
     case 52: //Front R-Pant
         wx_minUV = vec2(4, 36)/64.0;
         wx_minUV = vec2(8, 48)/64.0;
-        break;
+        return;
     case 53: //Back R-Pant
         wx_minUV = vec2(12, 36)/64.0;
         wx_minUV = vec2(16, 48)/64.0;
-        break;
+        return;
 
     // ======== R-Shirt ========
     case 54: //Left R-Shirt
         wx_minUV = vec2(48, 36)/64.0;
         wx_minUV = vec2(52, 48)/64.0;
-        break;
+        return;
     case 55: //Right R-Shirt
         wx_minUV = vec2(40, 36)/64.0;
         wx_minUV = vec2(44, 48)/64.0;
-        break;
+        return;
     case 56: //Top R-Shirt
         wx_minUV = vec2(44, 32)/64.0;
         wx_minUV = vec2(48, 36)/64.0;
-        break;
+        return;
     case 57: //Bottom R-Shirt
         wx_minUV = vec2(48, 32)/64.0;
         wx_minUV = vec2(52, 36)/64.0;
-        break;
+        return;
     case 58: //Front R-Shirt
         wx_minUV = vec2(44, 36)/64.0;
         wx_minUV = vec2(48, 48)/64.0;
-        break;
+        return;
     case 59: //Back R-Shirt
         wx_minUV = vec2(52, 36)/64.0;
         wx_minUV = vec2(56, 48)/64.0;
-        break;
+        return;
 
     // ======== L-Shirt ========
     case 60: //Left L-Shirt
         wx_minUV = vec2(8+48, 52)/64.0;
         wx_minUV = vec2(12+48, 64)/64.0;
-        break;
+        return;
     case 61: //Right L-Shirt
         wx_minUV = vec2(0+48, 52)/64.0;
         wx_minUV = vec2(4+48, 64)/64.0;
-        break;
+        return;
     case 62: //Top L-Shirt
         wx_minUV = vec2(4+48, 48)/64.0;
         wx_minUV = vec2(8+48, 52)/64.0;
-        break;
+        return;
     case 63: //Bottom L-Shirt
         wx_minUV = vec2(8+48, 48)/64.0;
         wx_minUV = vec2(12+48, 52)/64.0;
-        break;
+        return;
     case 64: //Front L-Shirt
         wx_minUV = vec2(4+48, 52)/64.0;
         wx_minUV = vec2(8+48, 64)/64.0;
-        break;
+        return;
     case 65: //Back L-Shirt
         wx_minUV = vec2(12+48, 52)/64.0;
         wx_minUV = vec2(16+48, 64)/64.0;
-        break;
+        return;
 
     // ======== Shirt ========
     case 66: //Left Shirt
         wx_minUV = vec2(28, 36)/64.0;
         wx_maxUV = vec2(32, 48)/64.0;
-        break;
+        return;
     case 67: //Right Shirt
         wx_minUV = vec2(16, 36)/64.0;
         wx_maxUV = vec2(20, 48)/64.0;
-        break;
+        return;
     case 68: //Top Shirt
         wx_minUV = vec2(20, 32)/64.0;
         wx_maxUV = vec2(28, 36)/64.0;
-        break;
+        return;
     case 69: //Bottom Shirt
         wx_minUV = vec2(28, 32)/64.0;
         wx_maxUV = vec2(36, 36)/64.0;
-        break;
+        return;
     case 70: //Front Shirt
         wx_minUV = vec2(20, 36)/64.0;
         wx_maxUV = vec2(28, 48)/64.0;
-        break;
+        return;
     case 71: //Back Shirt
         wx_minUV = vec2(32, 36)/64.0;
         wx_maxUV = vec2(40, 48)/64.0;
-        break;
+        return;
     }
 }
 
@@ -411,7 +428,7 @@ void writeDefaults(int faceId){
 
         vec3 newPos = Position;
         if(mod(gl_VertexID,8) == 6 || mod(gl_VertexID,8) == 7){ //back side
-            newPos += Normal*-AS_ROTATED;
+            newPos += Normal*-AS_OUTER;
         } else { //front side
             newPos -= Normal/16.0*8.45;
         }
