@@ -1,10 +1,12 @@
 
 # ExtendedPlayerModels
-A Minecraft 1.17 Vanilla Resource Pack which makes it possible to customize player models.
+A Minecraft 1.17 Resource Pack (shader) which makes it possible to customize player models.
 Works with multiplayer
 
-## 0. (BETA) MUST READ 
+## 0. [BETA] MUST READ 
 As long as this text is here: Do **not** share this resourcepack in a public forum.
+
+NOTE: only `OUTER` transform currently working
 
 ![image](https://user-images.githubusercontent.com/70565775/131851851-0a27216d-7eca-48c3-aa64-cd16b85919a8.png)
 
@@ -12,13 +14,14 @@ As long as this text is here: Do **not** share this resourcepack in a public for
 https://github.com/OscarDahlqvist/ExtendedPlayerModels/archive/refs/heads/master.zip
 
 Note: Lighting of the transformed faces is broken, this *should* be fixed soon.
+NOTE: only `OUTER` transform currently working
 ## 2. Submitting
-I'd love to see more community feedback & suggestions to this repo. You can either suggest a by creating an issue or if you're a true jedi you can also submit code suggestions.
+I'd love to see more community feedback & suggestions to this repo. You can either suggest features as "issue" or if you're a king you can also submit code suggestions.
 
 My discord for Dms: Wilux#3918
 
 ## 3. Editing
-### 3.0 What even can be edited?
+### 3.0 What of the model can be edited?
 First of all, polygons can NOT be added, only moved.
 Additionally, due to quirks of the minecraft shader wrapper vertexes can only be moved along the facing (normal) of the face or they will end up distorted*.
 
@@ -46,7 +49,7 @@ So the bottom face of the head would have ID=`39` and be located at `7,3`
 
 I'm assuming you are familiar with color hex codes. The hex code is treated as a bitfield to set specific properties of the face transformation.
 
-RGB: `#RRGGBB` = `ETTTcccc LLxxxxxx XYyyyyyy`
+RGB: `#RRGGBB` = `ETTTcccc LLxxxxxx fFyyyyyy`
 - `E:1` = Enable face modifiers. (Must be 1 if you want anything to happen)
 - `T:3` = Transform type. (see image in section 3.0)
   - `000`: None
@@ -60,27 +63,28 @@ RGB: `#RRGGBB` = `ETTTcccc LLxxxxxx XYyyyyyy`
 	- `01`: X-
 	- `10`: Y+ 
 	- `11`: Y-
-- `x:6` = UV x offset. *(offset from original UV location in pixels)*
-- `X:1` = flip X **(NOT IMPLEMENTED)**
-- `Y:1` = flip Y **(NOT IMPLEMENTED)**
+- `x:6` = UV x offset. *(offset from original UV location in pixels)* If you need negative offset the offset will wrap around the image
+- `f:1` = flip X **(NOT IMPLEMENTED)**
+- `F:1` = flip Y **(NOT IMPLEMENTED)**
 - `y:6` = UV y offset.
 
 ### 3.2.1 Indirect Transforms
-Indirect transforms require additional data and will use the 6 least significant bits of alpha value of the pixel and as a reference to a EXT data pixel. What this pixel's value is used for depends on the transform.
-alpha = `--aaaAAA` 
- - `a:3`: x position in EXT section
- - `A:3`: y position in EXT section
+Indirect transforms require additional data and will use the 6 least significant bits of alpha value of the pixel and as a reference to another data pixel. What this pixel's value is used for depends on the transform.
+alpha = `--XXXYYY` 
+ - `X:3`: x position in EXT section
+ - `Y:3`: y position in EXT section
  
-The secondary data pixel is denoted `EXD`.  Several faces can share the same EXT data pixel,
+Data pixel used as argument of transform = `pixel(X+24,Y)`
 
  - **Manual** `(T=100)`
    Allows you to set pixel displacement for the transform by hand.
-   - offsets corners **not** selected by the corner bitmask `c` by `EXD.r/32-16` pixels
-   - offsets corners selected by the corner bitmask `c` by `EXD.g/32-16` pixels
-
+   - `r`: offsets corners **not** selected by the corner bitmask `c` by `r/16` pixels
+   - `g`: offsets corners selected by the corner bitmask `c` by `g/16` pixels
+   - `b`: offsets corners selected by the corner bitmask by `b/16` pixels towards the direction of gravity  *(Does not work in nether)*
 
 
 ### 3.3 Examples
  ![image](https://user-images.githubusercontent.com/70565775/131921159-a5d28fa3-698a-4f93-a9a8-a57f078c20f1.png)
-![thaumux_fire](https://user-images.githubusercontent.com/70565775/131922242-60d9a760-ff7c-490e-9a9d-b5e47ae4a005.png)
+![thaumux_fire](https://user-images.githubusercontent.com/70565775/131922242-60d9a760-ff7c-490e-9a9d-b5e47ae4a005.png) <br>
 Separate UV "Ears" attached to front of inner skin `PIXEL(7,3) = #BCC800 = 10111100 11001000 00000000`
+
