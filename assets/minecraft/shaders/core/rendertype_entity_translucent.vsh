@@ -81,21 +81,23 @@ void main() {
             int data0 = int(pxData.r+0.5);
             int data1 = int(pxData.g+0.5);
             int data2 = int(pxData.b+0.5); 
-
+            
+            /*
             //<debug>
             switch(faceId) {    
             //case 39: data0 = (1<<2) | (1<<3) | TRANSFORM_INNER_REVERSED | F_ENABLED; data1 = 0x8 | SCALEDIR_Y_MINUS; break; // Bottom hat 
 
-            case 36: data0 = (1<<0) | (1<<3) | TRANSFORM_OUTER | F_ENABLED; data1 = SCALEDIR_X_MINUS; break; // Left hat
-            case 37: data0 = (1<<1) | (1<<2) | TRANSFORM_OUTER | F_ENABLED; data1 = SCALEDIR_X_PLUS; break; // Right hat
-            case 38: data0 = (1<<1) | (1<<0) | TRANSFORM_OUTER | F_ENABLED; data1 = SCALEDIR_Y_PLUS; break; // Top hat
+            case 36: data0 = (1<<0) | (1<<3) | TRANSFORM_INNER_REVERSED | F_ENABLED; data1 = SCALEDIR_X_MINUS; break; // Left hat
+            case 37: data0 = (1<<1) | (1<<2) | TRANSFORM_INNER_REVERSED | F_ENABLED; data1 = SCALEDIR_X_PLUS; break; // Right hat
+            case 38: data0 = (1<<1) | (1<<0) | TRANSFORM_INNER_REVERSED | F_ENABLED; data1 = SCALEDIR_Y_PLUS; break; // Top hat
 
-            case 67: data0 = (1<<0) | (1<<3) | TRANSFORM_OUTER | F_ENABLED; data1 = SCALEDIR_X_PLUS; break;  //Right jacket
-            case 66: data0 = (1<<1) | (1<<2) | TRANSFORM_OUTER | F_ENABLED; data1 = SCALEDIR_X_MINUS; break;  //Left jacket
-            case 69: data0 = (1<<0) | (1<<1) | TRANSFORM_OUTER | F_ENABLED; data1 = SCALEDIR_Y_PLUS; break;  //Bottom jacket
-            case 71: data0 = (1<<2) | (1<<3) | TRANSFORM_OUTER | F_ENABLED; data1 = SCALEDIR_Y_PLUS; break;  //Back jacket
+            case 67: data0 = (1<<0) | (1<<3) | TRANSFORM_INNER_REVERSED | F_ENABLED; data1 = SCALEDIR_X_PLUS; break;  //Right jacket
+            case 66: data0 = (1<<1) | (1<<2) | TRANSFORM_INNER_REVERSED | F_ENABLED; data1 = SCALEDIR_X_MINUS; break;  //Left jacket
+            case 69: data0 = (1<<0) | (1<<1) | TRANSFORM_INNER_REVERSED | F_ENABLED; data1 = SCALEDIR_Y_PLUS; break;  //Bottom jacket
+            case 71: data0 = (1<<2) | (1<<3) | TRANSFORM_INNER_REVERSED | F_ENABLED; data1 = SCALEDIR_Y_PLUS; break;  //Back jacket
             }
             //</debug>
+            */
 
             if(data0 & F_ENABLED){
                 wx_isEdited = 1; 
