@@ -6,7 +6,7 @@ Works with multiplayer
 ## 0. [BETA] MUST READ 
 As long as this text is here: Do **not** share this resourcepack in a public forum.
 
-NOTE: only `OUTER` transform currently working
+NOTE: not everything works or is tested ATM.
 
 ![image](https://user-images.githubusercontent.com/70565775/131851851-0a27216d-7eca-48c3-aa64-cd16b85919a8.png)
 
@@ -14,7 +14,6 @@ NOTE: only `OUTER` transform currently working
 https://github.com/OscarDahlqvist/ExtendedPlayerModels/archive/refs/heads/master.zip
 
 Note: Lighting of the transformed faces is broken, this *should* be fixed soon.
-NOTE: only `OUTER` transform currently working
 ## 2. Submitting
 I'd love to see more community feedback & suggestions to this repo. You can either suggest features as "issue" or if you're a king you can also submit code suggestions.
 
