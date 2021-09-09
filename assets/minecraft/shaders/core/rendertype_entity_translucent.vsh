@@ -57,8 +57,8 @@ out float wx_isEdited;
 #define SCALEDIR_Y_MINUS (3<<6)
 #define F_ENABLED (0x80)
 
-int getPerpendicularLength(int faceId);
-void writeDefaults(int faceId);
+int getPerpendicularLength(int faceId, int isAlex);
+void writeUVBounds(int faceId, int isAlex);
 void fixScaling(int faceId);
 
 void main() {
@@ -70,39 +70,51 @@ void main() {
     normal = ProjMat * ModelViewMat * vec4(Normal, 0.0);    
 
     if(gl_VertexID >= 18*8){ //is second layer
-        vec4 topRightPixel = texelFetch(Sampler0, ivec2(0, 0), 0); //Macs can't texelfetch in vertex shader?
+        vec4 topRightPixel = texelFetch(Sampler0, ivec2(0, 0), 0)*256; //Macs can't texelfetch in vertex shader?
+        int header0 = int(topRightPixel.r + 0.1);
+        int header1 = int(topRightPixel.g + 0.1);
+        int header2 = int(topRightPixel.b + 0.1);
 
-        if(0==0/*topRightPixel.r == 1.0 && topRightPixel.a == 1.0*/){ 
+        if(header0 == 0xda && header1 == 0x67){ 
+            int isAlex = (header2 == 1) ? 1:0;
+
+            int faceId = gl_VertexID / 4;
             int cornerId = gl_VertexID % 4;
 
             vec3 newPos = Position;
-            int faceId = gl_VertexID / 4;
             vec4 pxData = texelFetch(Sampler0, ivec2((faceId-8)%8, (faceId-8)/8), 0)*256;
-            int data0 = int(pxData.r+0.5);
-            int data1 = int(pxData.g+0.5);
-            int data2 = int(pxData.b+0.5); 
-            
+            int data0 = int(pxData.r+0.1);
+            int data1 = int(pxData.g+0.1);
+            int data2 = int(pxData.b+0.1); 
             /*
             //<debug>
             switch(faceId) {    
-            //case 39: data0 = (1<<2) | (1<<3) | TRANSFORM_INNER_REVERSED | F_ENABLED; data1 = 0x8 | SCALEDIR_Y_MINUS; break; // Bottom hat 
+            //case 36: data0 = (1<<0) | (1<<3) | TRANSFORM_INNER_REVERSED | F_ENABLED; data1 = SCALEDIR_X_PLUS; break; // Left hat
+            //case 37: data0 = (1<<1) | (1<<2) | TRANSFORM_INNER_REVERSED | F_ENABLED; data1 = SCALEDIR_X_MINUS; break; // Right hat
+            //case 38: data0 = (1<<0) | (1<<1) | TRANSFORM_INNER_REVERSED | F_ENABLED; data1 = SCALEDIR_Y_MINUS; break; // Top hat 
+            //case 39: data0 = (1<<2) | (1<<3) | TRANSFORM_INNER_REVERSED | F_ENABLED; data1 = SCALEDIR_Y_MINUS; break; // Bottom hat 
+            
+            case 54: data0 = (1<<0) | (1<<3) | TRANSFORM_INNER_REVERSED | F_ENABLED; data1 = SCALEDIR_X_PLUS; break; // Left L-Shirt
+            case 55: data0 = (1<<1) | (1<<2) | TRANSFORM_INNER_REVERSED | F_ENABLED; data1 = SCALEDIR_X_MINUS; break; // Right L-Shirt
+            case 56: data0 = (1<<0) | (1<<1) | TRANSFORM_INNER_REVERSED | F_ENABLED; data1 = SCALEDIR_Y_MINUS; break; // Top L-Shirt 
+            case 57: data0 = (1<<2) | (1<<3) | TRANSFORM_INNER_REVERSED | F_ENABLED; data1 = SCALEDIR_Y_MINUS; break; // Bottom L-Shirt 
 
-            case 36: data0 = (1<<0) | (1<<3) | TRANSFORM_INNER_REVERSED | F_ENABLED; data1 = SCALEDIR_X_MINUS; break; // Left hat
-            case 37: data0 = (1<<1) | (1<<2) | TRANSFORM_INNER_REVERSED | F_ENABLED; data1 = SCALEDIR_X_PLUS; break; // Right hat
-            case 38: data0 = (1<<1) | (1<<0) | TRANSFORM_INNER_REVERSED | F_ENABLED; data1 = SCALEDIR_Y_PLUS; break; // Top hat
+            //case 42: data0 = (1<<0) | (1<<3) | TRANSFORM_OUTER | F_ENABLED; data1 = SCALEDIR_X_PLUS; break; // Left L-Pant
+            //case 43: data0 = (1<<1) | (1<<2) | TRANSFORM_OUTER | F_ENABLED; data1 = SCALEDIR_X_MINUS; break; // Right L-Pant
+            //case 44: data0 = (1<<0) | (1<<1) | TRANSFORM_OUTER | F_ENABLED; data1 = SCALEDIR_Y_MINUS; break; // Top L-Pant 
+            //case 45: data0 = (1<<2) | (1<<3) | TRANSFORM_OUTER | F_ENABLED; data1 = SCALEDIR_Y_MINUS; break; // Bottom L-Pant 
 
-            case 67: data0 = (1<<0) | (1<<3) | TRANSFORM_INNER_REVERSED | F_ENABLED; data1 = SCALEDIR_X_PLUS; break;  //Right jacket
-            case 66: data0 = (1<<1) | (1<<2) | TRANSFORM_INNER_REVERSED | F_ENABLED; data1 = SCALEDIR_X_MINUS; break;  //Left jacket
-            case 69: data0 = (1<<0) | (1<<1) | TRANSFORM_INNER_REVERSED | F_ENABLED; data1 = SCALEDIR_Y_PLUS; break;  //Bottom jacket
-            case 71: data0 = (1<<2) | (1<<3) | TRANSFORM_INNER_REVERSED | F_ENABLED; data1 = SCALEDIR_Y_PLUS; break;  //Back jacket
+            //case 67: data0 = (1<<0) | (1<<3) | TRANSFORM_INNER_REVERSED | F_ENABLED; data1 = SCALEDIR_X_PLUS; break;  //Right jacket
+            //case 66: data0 = (1<<1) | (1<<2) | TRANSFORM_INNER_REVERSED | F_ENABLED; data1 = SCALEDIR_X_MINUS; break;  //Left jacket
+            //case 69: data0 = (1<<0) | (1<<1) | TRANSFORM_INNER_REVERSED | F_ENABLED; data1 = SCALEDIR_Y_PLUS; break;  //Bottom jacket
+            //case 71: data0 = (1<<2) | (1<<3) | TRANSFORM_INNER_REVERSED | F_ENABLED; data1 = SCALEDIR_Y_PLUS; break;  //Back jacket
             }
-            //</debug>
-            */
+            //</debug>*/
 
             if(data0 & F_ENABLED){
                 wx_isEdited = 1; 
 
-                writeDefaults(faceId);
+                writeUVBounds(faceId, isAlex);
                 
                 int cornerBits = data0 & 0xf;
                 int transformType = data0 & 0x70;
@@ -149,7 +161,7 @@ void main() {
                         break;
 
                     case TRANSFORM_OUTER_REVERSED:
-                        int perpLen1 = getPerpendicularLength(faceId);
+                        int perpLen1 = getPerpendicularLength(faceId, isAlex);
 
                         newPos -= Normal*(perpLen1/16.0);
                         if(isSelectedCorner) 
@@ -167,26 +179,34 @@ void main() {
                         break;
 
                     case TRANSFORM_INNER_REVERSED: // kinda broken for most faces
-                        int perpLen2 = getPerpendicularLength(faceId);
+                        int perpLen2 = getPerpendicularLength(faceId, isAlex);
 
                         if(isSelectedCorner) 
                             newPos -= Normal*perpLen2;
                         switch(strechDirection) {
                             case SCALEDIR_X_PLUS: 
+                                wx_scaling = vec2(perpLen2/(size.x*4.0), 1.12);
+                                wx_minUV += vec2(perpLen2, 0)/64;
+                                wx_maxUV += vec2(perpLen2, 0)/64;
+                                wx_UVDisplacement += vec2(perpLen2, 0)/64.0; 
+                                break;
                             case SCALEDIR_X_MINUS: 
-                                wx_scaling = vec2(perpLen2/(size.x*4.0)/1.01, 1.12);
-                                
-                                wx_minUV -= vec2(perpLen2, 0)/64; //needed since reverse. Effectively shifts the clipmask
+                                wx_scaling = vec2(perpLen2/(size.x*4.0), 1.12);
+                                wx_minUV -= vec2(perpLen2, 0)/64;
                                 wx_maxUV -= vec2(perpLen2, 0)/64;
-                                wx_UVDisplacement += vec2(perpLen2, 0)/64.0; //needed since reverse. Effectively shifts the clipmask
+                                wx_UVDisplacement += vec2(perpLen2, 0)/64.0; 
                                 break;
                             case SCALEDIR_Y_PLUS: 
+                                wx_scaling = vec2(1.12, perpLen2/(size.y*4.0));                                
+                                wx_minUV += vec2(0, perpLen2)/64; 
+                                wx_maxUV += vec2(0, perpLen2)/64;
+                                wx_UVDisplacement += vec2(0, perpLen2)/64.0; 
+                                break;
                             case SCALEDIR_Y_MINUS: 
-                                wx_scaling = vec2(1.12, perpLen2/(size.y*4.0)/1.01);
-                                
-                                wx_minUV -= vec2(0, perpLen2)/64; //needed since reverse. Effectively shifts the clipmask
+                                wx_scaling = vec2(1.12, perpLen2/(size.y*4.0));                                
+                                wx_minUV -= vec2(0, perpLen2)/64; 
                                 wx_maxUV -= vec2(0, perpLen2)/64;
-                                wx_UVDisplacement += vec2(0, perpLen2)/64.0; //needed since reverse. Effectively shifts the clipmask
+                                wx_UVDisplacement += vec2(0, perpLen2)/64.0; 
                                 break;
                             }
                         break;
@@ -207,35 +227,40 @@ void main() {
 }
 
 // retuns the length (in pixels) of the parallel face
-int getPerpendicularLength(int faceId) {
+int getPerpendicularLength(int faceId, int isAlex) {
     int facetype = faceId/6;
     int faceAxis = faceId%6;
     int perpendicularLength;
     switch(facetype) {
-    case 6: //Head
-        return 8;
-    case 7:
-    case 8:
-    case 9:
-    case 10:
-        if(faceAxis == 2 || faceAxis == 3){ // Top/Bot
-            return 12;
-        } else {
-            return 4; // Account for Alex models?
-        }
-    case 11:
-        if(faceAxis == 0 || faceAxis == 1) { // Left/Right
+        case 6: //Head
             return 8;
-        } else if(faceAxis == 2 || faceAxis == 3) {// Top/Bot
-            return 12;
-        } else { // Front/Back
-            return 4;
-        }
+        case 7: // L-Pant
+        case 8: // R-Pant
+            if(faceAxis == 2 || faceAxis == 3){ // Top/Bot
+                return 12;
+            } else {
+                return 4;
+            }
+        case 9: // R-Arm
+        case 10: // L-Arm
+            if(faceAxis == 2 || faceAxis == 3){ // Top/Bot
+                return 12;
+            } else {
+                return isAlex ? 3 : 4; // Account for Alex models
+            }
+        case 11:
+            if(faceAxis == 0 || faceAxis == 1) { // Left/Right
+                return 8;
+            } else if(faceAxis == 2 || faceAxis == 3) {// Top/Bot
+                return 12;
+            } else { // Front/Back
+                return 4;
+            }
     }
 }
 
 // Can be optimized
-void writeDefaults(int faceId){
+void writeUVBounds(int faceId, int isAlex){
     switch(faceId){
     // ======== Hat ========
     case 36: //Left Hat
@@ -315,56 +340,106 @@ void writeDefaults(int faceId){
         wx_maxUV = vec2(16, 48)/64.0;
         return;
 
-    // ======== R-Shirt ========
-    case 54: //Left R-Shirt
-        wx_minUV = vec2(48, 36)/64.0;
-        wx_maxUV = vec2(52, 48)/64.0;
-        return;
-    case 55: //Right R-Shirt
-        wx_minUV = vec2(40, 36)/64.0;
-        wx_maxUV = vec2(44, 48)/64.0;
-        return;
-    case 56: //Top R-Shirt
-        wx_minUV = vec2(44, 32)/64.0;
-        wx_maxUV = vec2(48, 36)/64.0;
-        return;
-    case 57: //Bottom R-Shirt
-        wx_minUV = vec2(48, 32)/64.0;
-        wx_maxUV = vec2(52, 36)/64.0;
-        return;
-    case 58: //Front R-Shirt
-        wx_minUV = vec2(44, 36)/64.0;
-        wx_minUV = vec2(48, 48)/64.0;
-        return;
-    case 59: //Back R-Shirt
-        wx_minUV = vec2(52, 36)/64.0;
-        wx_maxUV = vec2(56, 48)/64.0;
-        return;
-
     // ======== L-Shirt ========
-    case 60: //Left L-Shirt
-        wx_minUV = vec2(8+48, 52)/64.0;
-        wx_maxUV = vec2(12+48, 64)/64.0;
+    case 54: //Left L-Shirt
+        if(isAlex){
+            wx_minUV = vec2(8+48-1, 52)/64.0;
+            wx_maxUV = vec2(12+48-1, 64)/64.0;  
+        } else {
+            wx_minUV = vec2(8+48, 52)/64.0;
+            wx_maxUV = vec2(12+48, 64)/64.0;  
+        }
         return;
-    case 61: //Right L-Shirt
+    case 55: //Right L-Shirt
         wx_minUV = vec2(0+48, 52)/64.0;
         wx_maxUV = vec2(4+48, 64)/64.0;
         return;
-    case 62: //Top L-Shirt
-        wx_minUV = vec2(4+48, 48)/64.0;
-        wx_maxUV = vec2(8+48, 52)/64.0;
+    case 56: //Top L-Shirt
+        if(isAlex){
+            wx_minUV = vec2(4+48, 48)/64.0;
+            wx_maxUV = vec2(8+48-1, 52)/64.0;
+        } else {
+            wx_minUV = vec2(4+48, 48)/64.0;
+            wx_maxUV = vec2(8+48, 52)/64.0;
+        }
         return;
-    case 63: //Bottom L-Shirt
-        wx_minUV = vec2(8+48, 48)/64.0;
-        wx_maxUV = vec2(12+48, 52)/64.0;
+    case 57: //Bottom L-Shirt
+        if(isAlex){
+            wx_minUV = vec2(8+48-1, 48)/64.0;
+            wx_maxUV = vec2(12+48-2, 52)/64.0;
+        } else {
+            wx_minUV = vec2(8+48, 48)/64.0;
+            wx_maxUV = vec2(12+48, 52)/64.0;
+        }
         return;
-    case 64: //Front L-Shirt
-        wx_minUV = vec2(4+48, 52)/64.0;
-        wx_maxUV = vec2(8+48, 64)/64.0;
+    case 58: //Front L-Shirt
+        if(isAlex){
+            wx_minUV = vec2(4+48, 52)/64.0;
+            wx_maxUV = vec2(8+48-1, 64)/64.0;
+        } else {
+            wx_minUV = vec2(4+48, 52)/64.0;
+            wx_maxUV = vec2(8+48, 64)/64.0;
+        }
         return;
-    case 65: //Back L-Shirt
-        wx_minUV = vec2(12+48, 52)/64.0;
-        wx_maxUV = vec2(16+48, 64)/64.0;
+    case 59: //Back L-Shirt
+        if(isAlex){
+            wx_minUV = vec2(12+48-1, 52)/64.0;
+            wx_maxUV = vec2(16+48-2, 64)/64.0;
+        } else {
+            wx_minUV = vec2(12+48, 52)/64.0;
+            wx_maxUV = vec2(16+48, 64)/64.0;
+        }
+        return;
+
+    // ======== R-Shirt ========
+    case 60: //Left R-Shirt
+        if(isAlex){
+            wx_minUV = vec2(48-1, 36)/64.0;
+            wx_maxUV = vec2(52-1, 48)/64.0;
+        } else {
+            wx_minUV = vec2(48, 36)/64.0;
+            wx_maxUV = vec2(52, 48)/64.0;
+        }
+        return;
+    case 61: //Right R-Shirt
+        wx_minUV = vec2(40, 36)/64.0;
+        wx_maxUV = vec2(44, 48)/64.0;
+        return;
+    case 62: //Top R-Shirt
+        if(isAlex){
+            wx_minUV = vec2(44, 32)/64.0;
+            wx_maxUV = vec2(48-1, 36)/64.0;
+        } else {
+            wx_minUV = vec2(44, 32)/64.0;
+            wx_maxUV = vec2(48, 36)/64.0;
+        }
+        return;
+    case 63: //Bottom R-Shirt
+        if(isAlex){
+            wx_minUV = vec2(48-1, 32)/64.0;
+            wx_maxUV = vec2(52-2, 36)/64.0;
+        } else {
+            wx_minUV = vec2(48, 32)/64.0;
+            wx_maxUV = vec2(52, 36)/64.0;
+        }
+        return;
+    case 64: //Front R-Shirt
+        if(isAlex){
+            wx_minUV = vec2(44, 36)/64.0;
+            wx_minUV = vec2(48-1, 48)/64.0;
+        } else {
+            wx_minUV = vec2(44, 36)/64.0;
+            wx_minUV = vec2(48, 48)/64.0;
+        }
+        return;
+    case 65: //Back R-Shirt
+        if(isAlex){
+            wx_minUV = vec2(52-1, 36)/64.0;
+            wx_maxUV = vec2(56-2, 48)/64.0;
+        } else {
+            wx_minUV = vec2(52, 36)/64.0;
+            wx_maxUV = vec2(56, 48)/64.0;
+        }
         return;
 
     // ======== Shirt ========
