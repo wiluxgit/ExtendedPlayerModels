@@ -31,7 +31,11 @@ Texture-wise you can freely decide which part (if any) of the skin file that a t
 
 ### 3.1 Basic Editing
 To edit your player model you will need to set specific pixels to specific RGB values.
-To get started you **MUST** to set the top left pixel to 0xFF0000 (pure red). Leave all other pixels in the top 8x8 square empty for now.
+To get started you **MUST** to set the top left pixel to a specific color.
+- #da6700 if using the Steve model
+- #da6701 if using the Alex model
+
+Leave all other pixels in the top 8x8 square empty for now.
 
 Until i finish a helper tool to generate the edited models look at examples in section 3.3 and/or go in depth in section 3.2
 
@@ -84,6 +88,7 @@ Data pixel used as argument of transform = `pixel(X+24,Y)`
 
 ### 3.3 Examples
  ![image](https://user-images.githubusercontent.com/70565775/131921159-a5d28fa3-698a-4f93-a9a8-a57f078c20f1.png)
-![thaumux_fire](https://user-images.githubusercontent.com/70565775/131922242-60d9a760-ff7c-490e-9a9d-b5e47ae4a005.png) <br>
+
+![thaumux_fire](https://user-images.githubusercontent.com/70565775/132669267-9563c1f0-38b6-4622-9bdf-f74003e5b234.png)  <br>
 Separate UV "Ears" attached to front of inner skin `PIXEL(7,3) = #BCC800 = 10111100 11001000 00000000`
 
