@@ -11,7 +11,7 @@ NOTE: not everything works or is tested ATM.
 ![image](https://user-images.githubusercontent.com/70565775/131851851-0a27216d-7eca-48c3-aa64-cd16b85919a8.png)
 
 ## 1. DOWNLOAD [BETA]
-https://github.com/OscarDahlqvist/ExtendedPlayerModels/archive/refs/heads/master.zip
+https://github.com/wiluxgit/ExtendedPlayerModels/archive/refs/heads/master.zip
 
 Note: Lighting of the transformed faces is broken, this *should* be fixed soon.
 ## 2. Submitting
